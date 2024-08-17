@@ -1,0 +1,16 @@
+# Ignore Python virtual environment
+venv/
+*.pt
+*.dylib
+
+# Ignore large files that are tracked by Git LFS
+retail-checkout/traced_model.pt
+venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.dylib
+
+myenv/
+*.pt
+*.dylib
+
+echo "venv/" >> .gitignore
+echo "retail-checkout/traced_model.pt" >> .gitignore
+

@@ -1,0 +1,39 @@
+# Ignore virtual environment folder
+venv/
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore environment variables and settings
+.env
+
+# Ignore logs and databases
+*.log
+*.sqlite3
+*.db
+
+# Ignore compiled files
+*.pyc
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore MacOS system files
+.DS_Store
+
+# Ignore large files or directories
+retail-checkout/traced_model.pt
+retail-checkout/myenv/
+
+# Ignore Node.js dependencies (if applicable)
+node_modules/
+
+# Ignore IDE or Editor specific files
+.vscode/
+.idea/
+
+# Ignore files related to Git
+.git/
+
