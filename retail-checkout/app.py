@@ -23,7 +23,7 @@ app = Flask(__name__)
 
 
 model_path = '/Users/edward/Downloads/RetailProductCheckout/retail-checkout/best.pt'
-model = attempt_load(model_path, map_location=torch.device('cpu'))  # เปลี่ยน 'cpu' เป็น 'cuda' หากใช้ GPU
+model = attempt_load(model_path, map_location=torch.device('cpu'))
 model.eval()
 num_classes = model.nc
 class_names = model.names
