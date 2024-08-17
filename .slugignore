@@ -1,0 +1,7 @@
+# Ignore large files or directories
+venv/
+.git/
+node_modules/
+*.pyc
+*.pyo
+*.log
