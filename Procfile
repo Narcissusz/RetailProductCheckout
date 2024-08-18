@@ -1,1 +1,1 @@
-web: python retail-checkout/app.py
+web: python app/app.py

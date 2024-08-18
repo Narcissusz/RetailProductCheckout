@@ -23,6 +23,7 @@ __pycache__/
 # Ignore large files or directories
 retail-checkout/traced_model.pt
 retail-checkout/myenv/
+retail-checkout/runs/
 
 # Ignore Node.js dependencies (if applicable)
 node_modules/
@@ -46,6 +47,8 @@ venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.dylib
 myenv/
 *.pt
 *.dylib
+
+runs/
 
 echo "venv/" >> .gitignore
 echo "retail-checkout/traced_model.pt" >> .gitignore
