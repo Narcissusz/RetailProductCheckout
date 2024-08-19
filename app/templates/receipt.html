@@ -9,49 +9,60 @@
             font-family: Arial, sans-serif;
             padding: 20px;
         }
-        .receipt {
-            border: 1px solid #ccc;
+        .receipt-container {
+            max-width: 400px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
             padding: 20px;
             border-radius: 5px;
-            width: 300px;
-            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .receipt h2 {
+        .receipt-header {
             text-align: center;
             margin-bottom: 20px;
+        }
+        .receipt-header h1 {
+            margin: 0;
         }
         .receipt-item {
             display: flex;
             justify-content: space-between;
-            padding: 5px 0;
+            margin-bottom: 10px;
         }
-        .total {
+        .receipt-total {
+            margin-top: 20px;
             font-weight: bold;
+            text-align: right;
+        }
+        .receipt-footer {
+            margin-top: 20px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="receipt">
-        <h2>Receipt</h2>
-        <div id="items">
+    <div class="receipt-container">
+        <div class="receipt-header">
+            <h1>Receipt</h1>
+        </div>
+
+        <div class="receipt-body">
             {% for item, quantity in detected_items.items() %}
             <div class="receipt-item">
-                <span>{{ item }} (x{{ quantity }})</span>
-                <span>${{ (quantity * (price_data.get(item, 0))) | round(2) }}</span>
+                <span>{{ item }}</span>
+                <span>{{ quantity }} x {{ price_data[item] | round(2) }} = {{ (quantity * price_data[item]) | round(2) }}</span>
             </div>
             {% endfor %}
         </div>
-        <div class="receipt-item total">
-            <span>Subtotal:</span>
-            <span>${{ total_price | round(2) }}</span>
+
+        <div class="receipt-total">
+            <p>Total Price: ${{ total_price | round(2) }}</p>
+            <p>Tax (13%): ${{ tax | round(2) }}</p>
+            <p>Total with Tax: ${{ total_price_with_tax | round(2) }}</p>
         </div>
-        <div class="receipt-item total">
-            <span>Tax (13%):</span>
-            <span>${{ tax | round(2) }}</span>
-        </div>
-        <div class="receipt-item total">
-            <span>Total:</span>
-            <span>${{ total_with_tax | round(2) }}</span>
+
+        <div class="receipt-footer">
+            <p>Thank you for your purchase!</p>
         </div>
     </div>
 </body>

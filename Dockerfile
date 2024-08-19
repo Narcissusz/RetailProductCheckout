@@ -1,17 +1,21 @@
-# ใช้ Python image ที่เป็น slim version เพื่อลดขนาด image
 FROM python:3.12-slim
 
-# ตั้งค่า working directory ภายใน container
 WORKDIR /app
 
-# คัดลอก requirements.txt ไปยัง container
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 
-# ติดตั้ง dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+ENV PYTHONPATH="${PYTHONPATH}:/app/app/yolov7"
 
-# คัดลอกโค้ดแอปพลิเคชันไปยัง container
-COPY app/ ./app/
+RUN pip install --no-cache-dir -r requirements.txt 
 
-# กำหนดคำสั่งให้ container รันเมื่อเริ่มทำงาน
+EXPOSE 8080
+
+COPY . /app
+
 CMD ["python", "app/app.py"]

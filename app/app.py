@@ -13,22 +13,46 @@ import uuid
 import subprocess
 import re
 
-sys.path.append('/Users/edward/Downloads/RetailProductCheckout/app/yolov7')
+# Get the current directory where app.py is located
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Append the yolov7 directory to sys.path
+yolov7_path = os.path.join(current_dir, 'yolov7')
+# sys.path.append(yolov7_path)
+sys.path.append(os.path.join(os.path.dirname(__file__), 'yolov7'))
+
 
 import torch
 
 app = Flask(__name__)
-
-model_path = '/Users/edward/Downloads/RetailProductCheckout/app/best.pt'
+detect_script = os.path.join(yolov7_path, 'detect.py')
+model_path = os.path.join(current_dir, 'best.pt')
 model = attempt_load(model_path, map_location=torch.device('cpu'))
 model.eval()
 num_classes = model.nc
 class_names = model.names
 
+def calculate_total_price(detected_items):
+    price_data = {
+        "Coke": 2.59,
+        "Cokes": 2.59,
+        "Shampoo": 15.49,
+        "Shampoos": 15.49,
+        "SunScreen": 27.89,
+        "SunScreens": 27.89,
+        "VitaminC": 45.29,
+        "VitaminCs": 45.29
+    }
+
+    total_price = 0
+    for item, quantity in detected_items.items():
+        price = price_data.get(item, 0)
+        total_price += price * quantity
+
+    return total_price
+
 def parse_detect_output(output):
-    """
-    Parse the output of detect.py to extract item names and quantities.
-    """
+ 
     lines = output.split('\n')
     for line in lines:
         if 'Done.' in line:
@@ -37,11 +61,9 @@ def parse_detect_output(output):
     else:
         raise ValueError("Detection results not found in output")
 
-    # Example of detected items line: "2 Cokes, 1 Shampoo, 1 SunScreen, 1 VitaminC, Done."
     detection_line = detection_line.replace('Done.', '').strip()
     items = detection_line.split(', ')
 
-    # Parse item quantities
     item_counts = {}
     for item in items:
         parts = item.split(' ', 1)
@@ -54,15 +76,6 @@ def parse_detect_output(output):
                 print(f"Skipping invalid count value: {count_str}")
     
     return item_counts
-
-def calculate_total_price(detected_items, price_file):
-    """
-    Calculate the total price of detected items using the price JSON file.
-    """
-    with open(price_file) as f:
-        price_data = json.load(f)
-
-    return sum(price_data.get(item, 0) for item in detected_items)
 
 @app.route('/')
 def index():
@@ -79,15 +92,28 @@ def upload_image():
     file.save(filepath)
     
     try:
-        result = subprocess.run(['python', '/Users/edward/Downloads/RetailProductCheckout/app/yolov7/detect.py', '--weights', '/Users/edward/Downloads/RetailProductCheckout/app/best.pt', '--conf', '0.1', '--source', filepath],
-                                capture_output=True, text=True)
+        # Run the subprocess with relative paths
+        result = subprocess.run(['python', detect_script, '--weights', model_path, '--conf', '0.3', '--source', filepath],
+                         capture_output=True, text=True)
         
         output = result.stdout
-
         detected_items = parse_detect_output(output)
-        price_file = 'prices.json'
-        total_price = calculate_total_price(detected_items, price_file)
-        return jsonify({"detected_items": detected_items, "total_price": total_price}), 200
+
+        # Define price data
+        price_data = {
+            "Coke": 2.59,
+            "Cokes": 2.59,
+            "Shampoo": 15.49,
+            "Shampoos": 15.49,
+            "SunScreen": 27.89,
+            "SunScreens": 27.89,
+            "VitaminC": 45.29,
+            "VitaminCs": 45.29
+        }
+        total_price = calculate_total_price(detected_items)
+        tax = total_price * 0.13
+        total_price_with_tax = total_price + tax
+        return render_template('receipt.html', detected_items=detected_items, total_price=total_price, tax=tax, total_price_with_tax=total_price_with_tax, price_data=price_data)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -102,7 +128,6 @@ def receipt():
     }
     
     total_price = 10
-    
     tax = total_price * 0.13
     total_with_tax = total_price + tax
 
@@ -111,4 +136,4 @@ def receipt():
 if __name__ == '__main__':
     if not os.path.exists('uploads'):
         os.makedirs('uploads')
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=False)
